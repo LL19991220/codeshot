@@ -7,6 +7,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/LL19991220/codeshot)
 
+🔗 **라이브 데모**: [https://codeshot.vercel.app](https://codeshot.vercel.app)
+
 **다른 언어 버전**: [English](README.md) | [中文](README_CN.md) | [日本語](README_JP.md)
 
 ## ✨ 기능
