@@ -43,11 +43,11 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="flex flex-col lg:flex-row gap-0 h-[calc(100vh-73px)]">
+      <main className="flex flex-col lg:flex-row gap-0 h-[calc(100vh-73px)] overflow-hidden">
         {/* Left Panel: Editor + Toolbar */}
-        <div className="flex flex-col lg:w-1/2 border-r border-gray-800">
+        <div className="flex flex-col lg:w-1/2 border-r border-gray-800 min-h-0">
           {/* Editor */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden min-h-0">
             <Editor
               code={code}
               language={language}
@@ -76,8 +76,8 @@ function App() {
         </div>
 
         {/* Right Panel: Preview */}
-        <div className="flex-1 overflow-auto bg-gray-950 flex items-center justify-center p-8">
-          <div ref={previewRef} className="w-full max-w-2xl">
+        <div className="flex-1 overflow-y-auto bg-gray-950 p-8 min-h-0">
+          <div ref={previewRef} className="w-full max-w-2xl mx-auto">
             <Preview
               code={code}
               language={language}
