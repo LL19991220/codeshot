@@ -25,6 +25,24 @@ export interface ExportOptions {
   scale: number
 }
 
+export interface CanvasRatio {
+  id: string
+  name: string
+  value: number | null // null = auto
+}
+
+export interface Preset {
+  id: string
+  name: string
+  theme: string
+  background: GradientBackground
+  windowStyle: WindowStyle
+  padding: number
+  showLineNumbers: boolean
+  shadow: number
+  canvasRatio: string
+}
+
 export interface AppState {
   code: string
   language: string
@@ -34,4 +52,7 @@ export interface AppState {
   padding: number
   showLineNumbers: boolean
   title: string
+  shadow: number
+  canvasRatio: string
+  autoFit: boolean
 }

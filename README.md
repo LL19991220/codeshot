@@ -7,7 +7,7 @@ A free, open-source alternative to [shots.so](https://shots.so) — create stunn
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/LL19991220/codeshot)
 
-🔗 **Live Demo**: [https://codeshot.vercel.app](https://codeshot.vercel.app)
+🔗 **Live Demo**: [https://codeshot-lovat.vercel.app](https://codeshot-lovat.vercel.app)
 
 **Other Languages**: [中文](README_CN.md) | [한국어](README_KR.md) | [日本語](README_JP.md)
 

@@ -1,4 +1,4 @@
-import type { CodeTheme, GradientBackground, WindowStyle } from '../types'
+import type { CodeTheme, GradientBackground, WindowStyle, CanvasRatio } from '../types'
 
 export const codeThemes: CodeTheme[] = [
   { id: 'github-dark', name: 'GitHub Dark', type: 'dark' },
@@ -26,9 +26,11 @@ export const gradientBackgrounds: GradientBackground[] = [
   { id: 'cool', name: 'Cool', colors: ['#06b6d4', '#3b82f6', '#6366f1'], angle: 135 },
   { id: 'lime', name: 'Lime', colors: ['#84cc16', '#22c55e', '#14b8a6'], angle: 135 },
   { id: 'rose', name: 'Rose', colors: ['#f43f5e', '#e11d48', '#be123c'], angle: 135 },
-  { id: 'transparent', name: 'Transparent', colors: ['transparent'], angle: 0 },
-  { id: 'solid-dark', name: 'Solid Dark', colors: ['#1a1a2e'], angle: 0 },
-  { id: 'solid-light', name: 'Solid Light', colors: ['#f8fafc'], angle: 0 },
+  { id: 'peach', name: 'Peach', colors: ['#fdba74', '#fb923c', '#f97316'], angle: 135 },
+  { id: 'lavender', name: 'Lavender', colors: ['#c4b5fd', '#a78bfa', '#8b5cf6'], angle: 135 },
+  { id: 'emerald', name: 'Emerald', colors: ['#34d399', '#10b981', '#059669'], angle: 135 },
+  { id: 'sky', name: 'Sky', colors: ['#38bdf8', '#0ea5e9', '#0284c7'], angle: 135 },
+  { id: 'crimson', name: 'Crimson', colors: ['#fb7185', '#f43f5e', '#e11d48'], angle: 135 },
 ]
 
 export const windowStyles: WindowStyle[] = [
@@ -36,6 +38,14 @@ export const windowStyles: WindowStyle[] = [
   { id: 'windows', name: 'Windows', showDots: false, showTitle: true, borderRadius: 8 },
   { id: 'minimal', name: 'Minimal', showDots: false, showTitle: false, borderRadius: 8 },
   { id: 'rounded', name: 'Rounded', showDots: true, showTitle: true, borderRadius: 20 },
+]
+
+export const canvasRatios: CanvasRatio[] = [
+  { id: 'auto', name: 'Auto', value: null },
+  { id: '1:1', name: '1:1', value: 1 },
+  { id: '4:3', name: '4:3', value: 4 / 3 },
+  { id: '16:9', name: '16:9', value: 16 / 9 },
+  { id: '9:16', name: '9:16', value: 9 / 16 },
 ]
 
 export const languages = [
@@ -68,4 +78,14 @@ export const defaultCode = `function fibonacci(n: number): number {
 
 // Generate first 10 Fibonacci numbers
 const result = Array.from({ length: 10 }, (_, i) => fibonacci(i));
-console.log(result); // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]`
+console.log(result); // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+
+// Memoized version for better performance
+const memo = new Map<number, number>();
+function fibonacciMemo(n: number): number {
+  if (n <= 1) return n;
+  if (memo.has(n)) return memo.get(n)!;
+  const value = fibonacciMemo(n - 1) + fibonacciMemo(n - 2);
+  memo.set(n, value);
+  return value;
+}`

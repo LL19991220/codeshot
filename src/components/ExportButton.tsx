@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { exportToPng, exportToSvg, copyToClipboard } from '../utils/export'
+import { t } from '../i18n'
 
 interface ExportButtonProps {
   previewRef: React.RefObject<HTMLElement | null>
@@ -47,39 +48,39 @@ export function ExportButton({ previewRef }: ExportButtonProps) {
   }
 
   return (
-    <div className="flex gap-2">
+    <div className="flex min-w-0 gap-2">
       <button
         onClick={handleCopy}
         disabled={exporting}
-        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+        className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(37,99,235,0.26)] transition-colors hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 max-[720px]:px-3"
       >
         {copied ? (
           <>
             <CheckIcon />
-            Copied!
+            <span className="max-[620px]:hidden">{t('export.copied')}</span>
           </>
         ) : (
           <>
             <CopyIcon />
-            Copy
+            <span className="max-[620px]:hidden">{t('export.copy')}</span>
           </>
         )}
       </button>
       <button
         onClick={handleExportPng}
         disabled={exporting}
-        className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 disabled:opacity-50 transition-colors"
+        className="flex items-center gap-2 rounded-lg border border-[#242d49] bg-[#151b30] px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-[#1b2440] disabled:opacity-50 max-[720px]:px-3"
       >
         <DownloadIcon />
-        PNG
+        <span className="max-[620px]:hidden">{t('export.png')}</span>
       </button>
       <button
         onClick={handleExportSvg}
         disabled={exporting}
-        className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 disabled:opacity-50 transition-colors"
+        className="flex items-center gap-2 rounded-lg border border-[#242d49] bg-[#151b30] px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-[#1b2440] disabled:opacity-50 max-[720px]:px-3"
       >
         <DownloadIcon />
-        SVG
+        <span className="max-[620px]:hidden">{t('export.svg')}</span>
       </button>
     </div>
   )

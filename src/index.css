@@ -9,8 +9,15 @@
 body {
   margin: 0;
   font-family: var(--font-sans);
+  background: #070a12;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Custom scrollbar */
@@ -24,12 +31,46 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4b5563;
+  background: #303a55;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
+  background: #465273;
+}
+
+::selection {
+  color: #fff;
+  background: rgba(124, 58, 237, 0.72);
+}
+
+input[type='range'] {
+  height: 14px;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #a855f7, #6366f1);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -5px;
+  border: 0;
+  border-radius: 999px;
+  background: #a855f7;
+  box-shadow: 0 8px 18px rgba(126, 34, 206, 0.36);
+  appearance: none;
+}
+
+select,
+button,
+input,
+textarea {
+  font: inherit;
 }
 
 /* Editor textarea styles */
@@ -45,6 +86,36 @@ body {
   font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.6;
+}
+
+/* Override shiki theme borders */
+.preview-code pre {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  height: 100%;
+}
+
+.preview-code code {
+  border: none !important;
+  outline: none !important;
+  height: 100%;
+}
+
+/* Scale code when in fixed ratio mode */
+.preview-code pre code {
+  display: block;
+  overflow: auto;
+}
+
+.preview-code.show-line-numbers .line::before {
+  content: attr(data-line);
+  display: inline-block;
+  width: 2.5ch;
+  margin-right: 1.4rem;
+  color: rgba(148, 163, 184, 0.46);
+  text-align: right;
+  user-select: none;
 }
 
 /* Animation */
