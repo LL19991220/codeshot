@@ -87,7 +87,7 @@ export function Preview({
 
         {/* Code Content */}
         <div
-          className="preview-code overflow-auto [&_pre]:p-4 [&_pre]:m-0 [&_pre]:overflow-x-auto [&_code]:block [&_code]:font-mono"
+          className="preview-code [&_pre]:p-4 [&_pre]:m-0 [&_pre]:overflow-x-auto [&_code]:block [&_code]:font-mono"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>

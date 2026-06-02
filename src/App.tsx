@@ -5,6 +5,22 @@ import { Toolbar } from './components/Toolbar'
 import { ExportButton } from './components/ExportButton'
 import { defaultCode, gradientBackgrounds, windowStyles } from './themes'
 
+// 彩蛋组件
+function EasterEgg({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 cursor-pointer"
+      onClick={onClose}
+    >
+      <img
+        src="/336.JPG"
+        alt="336 彩蛋"
+        className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+      />
+    </div>
+  )
+}
+
 function App() {
   const [code, setCode] = useState(defaultCode)
   const [language, setLanguage] = useState('typescript')
@@ -14,15 +30,27 @@ function App() {
   const [padding, setPadding] = useState(64)
   const [showLineNumbers, setShowLineNumbers] = useState(true)
   const [title, setTitle] = useState('fibonacci.ts')
+  const [showEasterEgg, setShowEasterEgg] = useState(false)
 
   const previewRef = useRef<HTMLDivElement>(null)
+
+  // 彩蛋：双击 logo
+  const handleLogoDoubleClick = () => {
+    const answer = prompt('请输入你的初中班级号：')
+    if (answer === '336') {
+      setShowEasterEgg(true)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+          <div
+            className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg cursor-pointer select-none"
+            onDoubleClick={handleLogoDoubleClick}
+          >
             <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
@@ -91,6 +119,9 @@ function App() {
           </div>
         </div>
       </main>
+
+      {/* 彩蛋 */}
+      {showEasterEgg && <EasterEgg onClose={() => setShowEasterEgg(false)} />}
     </div>
   )
 }
