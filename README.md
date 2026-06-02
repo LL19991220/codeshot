@@ -5,7 +5,9 @@
 A free, open-source alternative to [shots.so](https://shots.so) — create stunning code images for social media, blog posts, and presentations.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/codeshot)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/LL19991220/codeshot)
+
+**Other Languages**: [中文](README_CN.md) | [한국어](README_KR.md) | [日本語](README_JP.md)
 
 ## ✨ Features
 
