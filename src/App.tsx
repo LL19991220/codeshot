@@ -1,12 +1,13 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Editor } from './components/Editor'
 import { Preview } from './components/Preview'
 import { Toolbar } from './components/Toolbar'
 import { ExportButton } from './components/ExportButton'
-import { defaultCode, gradientBackgrounds, windowStyles, codeThemes } from './themes'
-import type { Preset } from './types'
+import { defaultCode, gradientBackgrounds, windowStyles, codeThemes, canvasRatios } from './themes'
+import type { Preset, Watermark } from './types'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import { t, setLocale, getLocale } from './i18n'
+import { exportToPng, exportToSvg, copyToClipboard } from './utils/export'
 
 // 从 localStorage 读取预设
 const loadPresets = (): Preset[] => {
@@ -43,13 +44,17 @@ function AppContent() {
   const [padding, setPadding] = useState(64)
   const [showLineNumbers, setShowLineNumbers] = useState(true)
   const [title, setTitle] = useState('fibonacci.ts')
-  const [activeTab, setActiveTab] = useState<'preview' | 'canvas'>('preview')
   const [shadow, setShadow] = useState(24)
   const [canvasRatio, setCanvasRatio] = useState('auto')
   const [autoFit, setAutoFit] = useState(true)
   const [presets, setPresets] = useState<Preset[]>(loadPresets)
   const [locale, setLocaleState] = useState(getLocale())
   const [showEasterEgg, setShowEasterEgg] = useState(false)
+
+  // 新功能状态
+  const [watermark, setWatermark] = useState<Watermark>({ text: '', position: 'bottom-right', opacity: 0.5, fontSize: 14 })
+  const [typingAnimation, setTypingAnimation] = useState(false)
+  const [typingSpeed, setTypingSpeed] = useState(30)
 
   const previewRef = useRef<HTMLDivElement>(null)
   const { theme: appTheme, toggleTheme } = useTheme()
@@ -63,12 +68,12 @@ function AppContent() {
   }
 
   // 随机主题
-  const randomTheme = () => {
+  const randomTheme = useCallback(() => {
     const randomIndex = Math.floor(Math.random() * codeThemes.length)
     setCodeTheme(codeThemes[randomIndex].id)
     const randomBgIndex = Math.floor(Math.random() * gradientBackgrounds.length)
     setBackground(gradientBackgrounds[randomBgIndex])
-  }
+  }, [])
 
   // 保存预设
   const savePreset = (name: string) => {
@@ -116,6 +121,60 @@ function AppContent() {
     handleLocaleChange(locale === 'zh-CN' ? 'en' : 'zh-CN')
   }
 
+  // 键盘快捷键 —— 用 ref 锁定最新回调，避免 useCallback 闭包陈旧
+  const randomThemeRef = useRef(randomTheme)
+  const toggleThemeRef = useRef(toggleTheme)
+  useEffect(() => {
+    randomThemeRef.current = randomTheme
+    toggleThemeRef.current = toggleTheme
+  })
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMod = e.ctrlKey || e.metaKey
+      if (!isMod) return
+
+      // Ctrl/Cmd + S → 导出 PNG
+      if (e.key === 's' && !e.shiftKey) {
+        e.preventDefault()
+        if (previewRef.current) exportToPng(previewRef.current, { scale: 2 })
+        return
+      }
+      // Ctrl/Cmd + Shift + S → 导出 SVG
+      if (e.key === 'S' && e.shiftKey) {
+        e.preventDefault()
+        if (previewRef.current) exportToSvg(previewRef.current)
+        return
+      }
+      // Ctrl/Cmd + Shift + C → 复制到剪贴板
+      if (e.key === 'C' && e.shiftKey) {
+        e.preventDefault()
+        if (previewRef.current) copyToClipboard(previewRef.current)
+        return
+      }
+      // Ctrl/Cmd + Shift + R → 随机主题
+      if (e.key === 'R' && e.shiftKey) {
+        e.preventDefault()
+        randomThemeRef.current()
+        return
+      }
+      // Ctrl/Cmd + Shift + L → 切换行号
+      if (e.key === 'L' && e.shiftKey) {
+        e.preventDefault()
+        setShowLineNumbers(prev => !prev)
+        return
+      }
+      // Ctrl/Cmd + Shift + D → 切换深色/浅色模式
+      if (e.key === 'D' && e.shiftKey) {
+        e.preventDefault()
+        toggleThemeRef.current()
+        return
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   const isLight = appTheme === 'light'
 
   const appShellClass = isLight
@@ -126,10 +185,10 @@ function AppContent() {
     : 'border-[#232c46] bg-[#0d1324]/82'
 
   return (
-    <div className={`h-screen overflow-hidden ${appShellClass}`}>
-      <div className="flex h-full flex-col overflow-hidden px-6 py-2 max-[900px]:px-2 max-[900px]:py-2">
+    <div className={`h-screen w-full overflow-hidden ${appShellClass}`}>
+      <div className="mx-auto flex h-full w-full flex-col px-4 py-3 max-[900px]:px-3 max-[900px]:py-3">
       {/* Header */}
-      <header className="flex items-center justify-between gap-3 pb-2 max-[720px]:gap-2">
+      <header className="shrink-0 z-20 -mx-4 mb-2 flex items-center justify-between gap-3 bg-[inherit] px-4 py-3 backdrop-blur-xl max-[900px]:-mx-3 max-[900px]:px-3 max-[720px]:gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           <div
             className="flex h-8 w-8 shrink-0 cursor-pointer select-none items-center justify-center rounded-lg bg-gradient-to-br from-sky-400 via-indigo-500 to-fuchsia-500 shadow-[0_10px_24px_rgba(99,102,241,0.32)]"
@@ -208,11 +267,11 @@ function AppContent() {
       </header>
 
       {/* Main Content */}
-      <main className="grid min-h-0 flex-1 grid-cols-[0.39fr_0.61fr] gap-5 overflow-hidden max-[1100px]:grid-cols-[minmax(300px,0.92fr)_minmax(360px,1fr)] max-[1100px]:gap-3 max-[720px]:grid-cols-[minmax(236px,0.95fr)_minmax(236px,1fr)] max-[720px]:gap-2">
+      <main className="grid min-h-0 flex-1 w-full grid-cols-[minmax(0,0.55fr)_minmax(0,1fr)] items-stretch gap-5 max-[1100px]:grid-cols-[minmax(0,0.95fr)_minmax(0,1fr)] max-[1100px]:gap-3 max-[720px]:grid-cols-1 max-[720px]:gap-4">
         {/* Left Panel */}
-        <div className={`flex min-h-0 flex-col overflow-hidden rounded-xl border backdrop-blur-xl ${panelClass}`}>
+        <div className={`flex h-full min-h-0 flex-col overflow-hidden rounded-xl border backdrop-blur-xl ${panelClass}`}>
           {/* Editor */}
-          <div className="h-[clamp(190px,40vh,400px)] shrink-0 overflow-hidden">
+          <div className="min-h-0 flex-1">
             <Editor
               code={code}
               language={language}
@@ -223,7 +282,7 @@ function AppContent() {
           </div>
 
           {/* Toolbar */}
-          <div className={`min-h-0 flex-1 overflow-hidden border-t ${isLight ? 'border-gray-200' : 'border-[#232c46]'}`}>
+          <div className={`min-h-0 shrink overflow-y-auto border-t ${isLight ? 'border-gray-200' : 'border-[#232c46]'}`}>
             <Toolbar
               theme={codeTheme}
               background={background}
@@ -234,6 +293,9 @@ function AppContent() {
               canvasRatio={canvasRatio}
               autoFit={autoFit}
               presets={presets}
+              watermark={watermark}
+              typingAnimation={typingAnimation}
+              typingSpeed={typingSpeed}
               onThemeChange={setCodeTheme}
               onBackgroundChange={setBackground}
               onWindowStyleChange={setWindowStyle}
@@ -246,51 +308,57 @@ function AppContent() {
               onSavePreset={savePreset}
               onLoadPreset={loadPreset}
               onDeletePreset={deletePreset}
+              onWatermarkChange={setWatermark}
+              onTypingAnimationChange={setTypingAnimation}
+              onTypingSpeedChange={setTypingSpeed}
             />
           </div>
         </div>
 
         {/* Right Panel */}
-        <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
+        <div className="flex h-full min-h-0 flex-col gap-2 overflow-hidden">
           <section className={`relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border backdrop-blur-xl ${panelClass}`}>
-            <div className="flex items-start justify-between px-7 pt-5 max-[720px]:px-3 max-[720px]:pt-3">
-              <div>
-                <button
-                  onClick={() => setActiveTab('preview')}
-                  className={`pb-2 text-lg font-bold transition-colors max-[720px]:text-sm ${
-                    activeTab === 'preview'
-                      ? isLight ? 'text-gray-900' : 'text-white'
-                      : isLight ? 'text-gray-500 hover:text-gray-700' : 'text-gray-500 hover:text-gray-300'
-                  }`}
-                >
-                  {t('previewEffect')}
-                </button>
-              </div>
+            <div className="flex items-center justify-between px-5 pt-3 max-[720px]:px-3 max-[720px]:pt-2">
+              <h2 className={`pb-2 text-lg font-bold max-[720px]:text-sm ${isLight ? 'text-gray-900' : 'text-white'}`}>
+                {t('previewEffect')}
+              </h2>
               <span className={`text-sm font-semibold max-[720px]:hidden ${isLight ? 'text-gray-500' : 'text-slate-500'}`}>
-                {t('canvasSize')}: 1200 × 800
+                {t('canvasSize')}: {(() => {
+                  const r = canvasRatios.find(x => x.id === canvasRatio)
+                  if (!r || r.value === null || r.value === undefined) return 'Auto'
+                  return r.id
+                })()}
               </span>
             </div>
 
-            <div ref={previewRef} className={`flex flex-1 items-center justify-center overflow-hidden px-4 py-1 max-[720px]:px-2 max-[720px]:py-0.5 ${isLight ? 'bg-slate-50/40' : 'bg-[radial-gradient(circle_at_center,rgba(48,42,110,0.34),transparent_62%)]'}`}>
-              <div className="w-full max-w-[1240px]">
-                <Preview
-                  code={code}
-                  language={language}
-                  theme={codeTheme}
-                  background={background}
-                  windowStyle={windowStyle}
-                  padding={padding}
-                  showLineNumbers={showLineNumbers}
-                  title={title}
-                  shadow={shadow}
-                  canvasRatio={canvasRatio}
-                  autoFit={autoFit}
-                />
-              </div>
+            <div
+              ref={previewRef}
+              className={`m-3 flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl max-[720px]:m-2 ${
+                isLight
+                  ? 'border border-slate-200/80 bg-slate-100/55'
+                  : 'border border-white/[0.06] bg-[#0a0f1f]/55'
+              }`}
+            >
+              <Preview
+                code={code}
+                language={language}
+                theme={codeTheme}
+                background={background}
+                windowStyle={windowStyle}
+                padding={padding}
+                showLineNumbers={showLineNumbers}
+                title={title}
+                shadow={shadow}
+                canvasRatio={canvasRatio}
+                autoFit={autoFit}
+                watermark={watermark.text ? watermark : undefined}
+                typingAnimation={typingAnimation}
+                typingSpeed={typingSpeed}
+              />
             </div>
           </section>
 
-          <section className={`grid shrink-0 grid-cols-4 gap-4 rounded-xl border p-5 backdrop-blur-xl max-[1100px]:hidden ${panelClass}`}>
+          <section className={`grid shrink-0 grid-cols-4 gap-3 rounded-xl border px-4 py-3 backdrop-blur-xl max-[1100px]:hidden ${panelClass}`}>
             <Feature icon="bolt" title={t('feature.realtime')} lines={[t('feature.realtime.line1'), t('feature.realtime.line2')]} />
             <Feature icon="export" title={t('feature.export')} lines={[t('feature.export.line1'), t('feature.export.line2')]} />
             <Feature icon="hd" title={t('feature.hd')} lines={[t('feature.hd.line1'), t('feature.hd.line2')]} />
@@ -307,6 +375,8 @@ function AppContent() {
 }
 
 function Feature({ icon, title, lines }: { icon: 'bolt' | 'export' | 'hd' | 'theme', title: string, lines: string[] }) {
+  const { theme: appTheme } = useTheme()
+  const isLight = appTheme === 'light'
   const iconPath = {
     bolt: 'M13 10V3L4 14h7v7l9-11h-7z',
     export: 'M12 5v10m0 0l-4-4m4 4l4-4M5 19h14',
@@ -315,16 +385,18 @@ function Feature({ icon, title, lines }: { icon: 'bolt' | 'export' | 'hd' | 'the
   }[icon]
 
   return (
-    <div className="flex items-center gap-4">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#201a43] text-purple-300">
-        <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="flex items-center gap-3">
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
+        isLight ? 'bg-purple-100 text-purple-600' : 'bg-[#201a43] text-purple-300'
+      }`}>
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={iconPath} />
         </svg>
       </div>
       <div>
-        <div className="text-base font-bold text-white">{title}</div>
+        <div className={`text-sm font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>{title}</div>
         {lines.map((line) => (
-          <div key={line} className="mt-1 text-sm font-semibold text-slate-500">{line}</div>
+          <div key={line} className={`mt-0.5 text-xs font-semibold ${isLight ? 'text-gray-500' : 'text-slate-500'}`}>{line}</div>
         ))}
       </div>
     </div>
