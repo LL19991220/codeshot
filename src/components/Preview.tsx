@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { codeToHtml } from 'shiki'
 import type { GradientBackground, WindowStyle, Watermark } from '../types'
-import { canvasRatios } from '../themes'
+import { canvasRatios, codeThemes } from '../themes'
 import { useTheme } from '../contexts/ThemeContext'
 
 interface PreviewProps {
@@ -50,6 +50,8 @@ export function Preview({
   const typingTimerRef = useRef<number | null>(null)
   const { theme: appTheme } = useTheme()
   const isLight = appTheme === 'light'
+  const codeThemeType = codeThemes.find(t => t.id === theme)?.type ?? 'dark'
+  const isLightCode = codeThemeType === 'light'
 
   // 代码高亮
   useEffect(() => {
@@ -142,14 +144,20 @@ export function Preview({
         }}
       >
         <div
-          className={`relative overflow-hidden flex min-h-0 flex-1 flex-col ${isLight ? 'bg-white' : 'bg-[#0d1320]'}`}
+          className={`relative overflow-hidden flex min-h-0 flex-1 flex-col ${isLightCode ? 'bg-white' : 'bg-[#0d1320]'}`}
           style={{
             borderRadius: `${windowStyle.borderRadius}px`,
             ...shadowStyle,
           }}
         >
           {windowStyle.showTitle && (
-            <div className="flex items-center px-5 py-4 bg-[#111827]/96 flex-shrink-0 border-b border-white/5">
+            <div
+              className={`flex items-center px-5 py-4 flex-shrink-0 ${
+                isLightCode
+                  ? 'bg-gray-100/95 border-b border-gray-200'
+                  : 'bg-[#111827]/96 border-b border-white/5'
+              }`}
+            >
               {windowStyle.showDots && (
                 <div className="flex gap-2 mr-5">
                   <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
@@ -157,24 +165,22 @@ export function Preview({
                   <div className="w-3 h-3 rounded-full bg-[#28c840]" />
                 </div>
               )}
-              <span className="flex-1 text-center text-sm font-medium text-slate-400">
+              <span
+                className={`flex-1 text-center text-sm font-medium ${
+                  isLightCode ? 'text-gray-500' : 'text-slate-400'
+                }`}
+              >
                 {title || 'untitled'}
               </span>
             </div>
           )}
 
           <div
-            className={`preview-code min-h-0 overflow-auto ${hasFixedRatio ? '' : 'flex-1'} ${
-              showLineNumbers ? 'show-line-numbers' : ''
-            }`}
-          >
-            <pre className="p-8 m-0 overflow-x-auto">
-              <code
-                className="block font-mono"
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
-            </pre>
-          </div>
+            className={`preview-code min-h-0 overflow-auto ${
+              hasFixedRatio ? '' : 'flex-1'
+            } ${showLineNumbers ? 'show-line-numbers' : ''} ${isLightCode ? 'light-code' : 'dark-code'}`}
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
 
           {/* 水印 */}
           {watermark?.text && (
@@ -183,8 +189,8 @@ export function Preview({
               style={{
                 opacity: watermark.opacity,
                 fontSize: `${watermark.fontSize}px`,
-                color: 'rgba(255, 255, 255, 0.85)',
-                textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+                color: isLightCode ? 'rgba(0, 0, 0, 0.45)' : 'rgba(255, 255, 255, 0.85)',
+                textShadow: isLightCode ? '0 1px 2px rgba(255,255,255,0.4)' : '0 1px 2px rgba(0,0,0,0.4)',
               }}
             >
               {watermark.text}

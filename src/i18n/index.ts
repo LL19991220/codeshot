@@ -51,6 +51,32 @@ const translations: Record<Locale, Record<string, string>> = {
     'feature.theme': 'Rich Themes',
     'feature.theme.line1': 'Multiple styles',
     'feature.theme.line2': 'for different needs',
+
+    // Typing Animation
+    'typing.play': 'Typing Animation',
+    'typing.pause': 'Pause',
+    'typing.reset': 'Reset',
+    'typing.speed': 'Speed',
+
+    // Watermark
+    'toolbar.watermark': 'Watermark',
+    'toolbar.watermark.text': 'Text',
+    'toolbar.watermark.placeholder': 'Enter watermark text...',
+    'toolbar.watermark.position': 'Position',
+    'toolbar.watermark.opacity': 'Opacity',
+    'toolbar.watermark.size': 'Size',
+
+    // Drag & Drop
+    'editor.dropHere': 'Drop your code file here',
+
+    // Shortcuts
+    'shortcut.title': 'Keyboard Shortcuts',
+    'shortcut.exportPng': 'Export PNG',
+    'shortcut.exportSvg': 'Export SVG',
+    'shortcut.copy': 'Copy to Clipboard',
+    'shortcut.randomTheme': 'Random Theme',
+    'shortcut.lineNumbers': 'Toggle Line Numbers',
+    'shortcut.darkMode': 'Toggle Dark Mode',
   },
   'zh-CN': {
     // Header
@@ -102,6 +128,32 @@ const translations: Record<Locale, Record<string, string>> = {
     'feature.theme': '主题丰富',
     'feature.theme.line1': '多种主题风格',
     'feature.theme.line2': '满足不同需求',
+
+    // 打字机动画
+    'typing.play': '打字机动画',
+    'typing.pause': '暂停',
+    'typing.reset': '重置',
+    'typing.speed': '速度',
+
+    // 水印
+    'toolbar.watermark': '水印',
+    'toolbar.watermark.text': '文字',
+    'toolbar.watermark.placeholder': '输入水印文字...',
+    'toolbar.watermark.position': '位置',
+    'toolbar.watermark.opacity': '透明度',
+    'toolbar.watermark.size': '大小',
+
+    // 拖拽
+    'editor.dropHere': '拖放代码文件到这里',
+
+    // 快捷键
+    'shortcut.title': '键盘快捷键',
+    'shortcut.exportPng': '导出 PNG',
+    'shortcut.exportSvg': '导出 SVG',
+    'shortcut.copy': '复制到剪贴板',
+    'shortcut.randomTheme': '随机主题',
+    'shortcut.lineNumbers': '切换行号',
+    'shortcut.darkMode': '切换深色模式',
   },
 }
 

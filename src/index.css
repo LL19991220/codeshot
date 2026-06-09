@@ -12,12 +12,10 @@ body {
   background: #070a12;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
 }
 
 html, body, #root {
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
 }
 
 /* Custom scrollbar */
@@ -88,21 +86,28 @@ textarea {
   line-height: 1.6;
 }
 
-/* Override shiki theme borders */
+/* Shiki's <pre> fills the code area with its own background */
+.preview-code > pre {
+  margin: 0;
+  padding: 32px;
+  box-sizing: border-box;
+  min-height: 100%;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .preview-code pre {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  height: 100%;
 }
 
 .preview-code code {
   border: none !important;
   outline: none !important;
-  height: 100%;
 }
 
-/* Scale code when in fixed ratio mode */
 .preview-code pre code {
   display: block;
   overflow: auto;
@@ -113,17 +118,42 @@ textarea {
   display: inline-block;
   width: 2.5ch;
   margin-right: 1.4rem;
-  color: rgba(148, 163, 184, 0.46);
   text-align: right;
   user-select: none;
 }
 
+/* 浅色代码主题下行号颜色 */
+.preview-code.light-code.show-line-numbers .line::before {
+  color: rgba(100, 116, 139, 0.46);
+}
+
+/* 深色代码主题下行号颜色 */
+.preview-code.dark-code.show-line-numbers .line::before {
+  color: rgba(148, 163, 184, 0.46);
+}
+
 /* Animation */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
+}
+
+/* Typing cursor blink */
+@keyframes cursorBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.animate-cursor-blink {
+  animation: cursorBlink 1s step-end infinite;
+}
+
+/* Drag overlay */
+.drag-over {
+  border-color: #a855f7 !important;
+  background: rgba(168, 85, 247, 0.08) !important;
 }

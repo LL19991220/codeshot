@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { exportToPng, exportToSvg, copyToClipboard } from '../utils/export'
 import { t } from '../i18n'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface ExportButtonProps {
   previewRef: React.RefObject<HTMLElement | null>
 }
 
 export function ExportButton({ previewRef }: ExportButtonProps) {
+  const { theme: appTheme } = useTheme()
+  const isLight = appTheme === 'light'
   const [copied, setCopied] = useState(false)
   const [exporting, setExporting] = useState(false)
 
@@ -47,6 +50,10 @@ export function ExportButton({ previewRef }: ExportButtonProps) {
     }
   }
 
+  const secondaryBtn = isLight
+    ? 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+    : 'border-[#242d49] bg-[#151b30] text-slate-300 hover:bg-[#1b2440]'
+
   return (
     <div className="flex min-w-0 gap-2">
       <button
@@ -69,7 +76,7 @@ export function ExportButton({ previewRef }: ExportButtonProps) {
       <button
         onClick={handleExportPng}
         disabled={exporting}
-        className="flex items-center gap-2 rounded-lg border border-[#242d49] bg-[#151b30] px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-[#1b2440] disabled:opacity-50 max-[720px]:px-3"
+        className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 max-[720px]:px-3 ${secondaryBtn}`}
       >
         <DownloadIcon />
         <span className="max-[620px]:hidden">{t('export.png')}</span>
@@ -77,7 +84,7 @@ export function ExportButton({ previewRef }: ExportButtonProps) {
       <button
         onClick={handleExportSvg}
         disabled={exporting}
-        className="flex items-center gap-2 rounded-lg border border-[#242d49] bg-[#151b30] px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-[#1b2440] disabled:opacity-50 max-[720px]:px-3"
+        className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 max-[720px]:px-3 ${secondaryBtn}`}
       >
         <DownloadIcon />
         <span className="max-[620px]:hidden">{t('export.svg')}</span>

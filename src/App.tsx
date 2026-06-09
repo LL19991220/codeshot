@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Editor } from './components/Editor'
 import { Preview } from './components/Preview'
 import { Toolbar } from './components/Toolbar'
@@ -58,6 +58,28 @@ function AppContent() {
 
   const previewRef = useRef<HTMLDivElement>(null)
   const { theme: appTheme, toggleTheme } = useTheme()
+
+  // 代码主题与应用主题同步：根据 app 主题自动映射对应类型的代码主题
+  const effectiveCodeTheme = useMemo(() => {
+    const currentTheme = codeThemes.find(t => t.id === codeTheme)
+    if (!currentTheme) return codeTheme
+
+    const themeMapping: Record<string, string> = {
+      'github-dark': 'github-light',
+      'github-light': 'github-dark',
+      'solarized-dark': 'solarized-light',
+      'solarized-light': 'solarized-dark',
+      'vitesse-dark': 'vitesse-light',
+      'vitesse-light': 'vitesse-dark',
+    }
+
+    if (appTheme === 'light' && currentTheme.type === 'dark') {
+      return themeMapping[codeTheme] || 'github-light'
+    } else if (appTheme === 'dark' && currentTheme.type === 'light') {
+      return themeMapping[codeTheme] || 'github-dark'
+    }
+    return codeTheme
+  }, [appTheme, codeTheme])
 
   // 彩蛋：双击 logo
   const handleLogoDoubleClick = () => {
@@ -284,7 +306,7 @@ function AppContent() {
           {/* Toolbar */}
           <div className={`min-h-0 shrink overflow-y-auto border-t ${isLight ? 'border-gray-200' : 'border-[#232c46]'}`}>
             <Toolbar
-              theme={codeTheme}
+              theme={effectiveCodeTheme}
               background={background}
               windowStyle={windowStyle}
               padding={padding}
@@ -342,7 +364,7 @@ function AppContent() {
               <Preview
                 code={code}
                 language={language}
-                theme={codeTheme}
+                theme={effectiveCodeTheme}
                 background={background}
                 windowStyle={windowStyle}
                 padding={padding}
