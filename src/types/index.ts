@@ -43,6 +43,13 @@ export interface Preset {
   canvasRatio: string
 }
 
+export interface Watermark {
+  text: string
+  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center'
+  opacity: number
+  fontSize: number
+}
+
 export interface AppState {
   code: string
   language: string

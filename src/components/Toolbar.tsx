@@ -1,5 +1,5 @@
 import { codeThemes, gradientBackgrounds, windowStyles, canvasRatios } from '../themes'
-import type { GradientBackground, WindowStyle, Preset } from '../types'
+import type { GradientBackground, WindowStyle, Preset, Watermark } from '../types'
 import { t } from '../i18n'
 import { useTheme } from '../contexts/ThemeContext'
 
@@ -13,6 +13,9 @@ interface ToolbarProps {
   canvasRatio: string
   autoFit: boolean
   presets: Preset[]
+  watermark?: Watermark
+  typingAnimation?: boolean
+  typingSpeed?: number
   onThemeChange: (theme: string) => void
   onBackgroundChange: (bg: GradientBackground) => void
   onWindowStyleChange: (style: WindowStyle) => void
@@ -25,6 +28,9 @@ interface ToolbarProps {
   onSavePreset: (name: string) => void
   onLoadPreset: (preset: Preset) => void
   onDeletePreset: (id: string) => void
+  onWatermarkChange: (watermark: Watermark) => void
+  onTypingAnimationChange: (enabled: boolean) => void
+  onTypingSpeedChange: (speed: number) => void
 }
 
 // Template icons
@@ -76,6 +82,9 @@ export function Toolbar({
   shadow,
   canvasRatio,
   presets,
+  watermark,
+  typingAnimation,
+  typingSpeed,
   onThemeChange,
   onBackgroundChange,
   onWindowStyleChange,
@@ -86,6 +95,9 @@ export function Toolbar({
   onSavePreset,
   onLoadPreset,
   onDeletePreset,
+  onWatermarkChange,
+  onTypingAnimationChange,
+  onTypingSpeedChange,
 }: ToolbarProps) {
   const { theme: appTheme } = useTheme()
   const isLight = appTheme === 'light'
@@ -109,10 +121,10 @@ export function Toolbar({
   }
 
   return (
-    <div className={`flex h-full min-h-0 flex-col ${bgClass}`}>
+    <div className={`flex h-full min-h-0 flex-col overflow-y-auto overflow-x-hidden ${bgClass}`}>
       <section className={`shrink-0 border-b px-3 py-2 ${borderClass}`}>
         <div className="mb-2 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-bold text-white">{t('toolbar.themeStyle')}</h2>
+          <h2 className={`text-sm font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>{t('toolbar.themeStyle')}</h2>
           <select
             value={theme}
             onChange={(e) => onThemeChange(e.target.value)}
@@ -162,7 +174,7 @@ export function Toolbar({
       <section className={`shrink-0 border-b px-3 py-2 ${borderClass}`}>
         <div className="grid grid-cols-[1fr_0.82fr] gap-3">
           <div>
-            <h2 className="mb-2 text-sm font-bold text-white">{t('toolbar.backgroundSettings')}</h2>
+            <h2 className={`mb-2 text-sm font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>{t('toolbar.backgroundSettings')}</h2>
             <label className={`mb-1.5 block text-[10px] font-bold ${labelClass}`}>{t('toolbar.backgroundPreset')}</label>
             <div className="grid grid-cols-5 gap-2">
               {gradientBackgrounds.map((bg) => (
@@ -189,7 +201,7 @@ export function Toolbar({
             <label className={`mb-2 block text-xs font-bold ${isLight ? 'text-gray-700' : 'text-white'}`}>
               {t('toolbar.gradientAngle')}
             </label>
-            <div className="mb-2 flex gap-1 rounded-lg bg-[#12182a] p-1">
+            <div className={`mb-2 flex gap-1 rounded-lg p-1 ${isLight ? 'bg-gray-100' : 'bg-[#12182a]'}`}>
               {canvasRatios.map((ratio) => (
                 <button
                   key={ratio.id}
@@ -197,7 +209,7 @@ export function Toolbar({
                   className={`flex-1 rounded-md px-1.5 py-1 text-[10px] font-bold transition-all ${
                     canvasRatio === ratio.id
                       ? 'bg-purple-600 text-white'
-                      : 'text-slate-400 hover:text-slate-200'
+                      : isLight ? 'text-gray-500 hover:text-gray-800' : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   {ratio.name}
@@ -213,7 +225,7 @@ export function Toolbar({
                 onChange={(e) => updateBackgroundAngle(Number(e.target.value))}
                 className="w-full accent-purple-500"
               />
-              <span className="w-9 text-right text-xs font-bold text-slate-400">{background.angle}°</span>
+              <span className={`w-9 text-right text-xs font-bold ${isLight ? 'text-gray-500' : 'text-slate-400'}`}>{background.angle}°</span>
             </div>
           </div>
         </div>
@@ -223,7 +235,7 @@ export function Toolbar({
         <div className={`border-r px-3 py-2 ${borderClass}`}>
           <label className={`mb-2 flex items-center justify-between text-sm font-bold ${isLight ? 'text-gray-700' : 'text-white'}`}>
             {t('toolbar.shadowSettings')}
-            <span className="text-xs text-slate-400">{shadow}px</span>
+            <span className={`text-xs ${isLight ? 'text-gray-500' : 'text-slate-400'}`}>{shadow}px</span>
           </label>
           <div className="flex items-center gap-3">
             <svg className="h-4 w-4 shrink-0 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -241,7 +253,7 @@ export function Toolbar({
         </div>
         <div className="px-3 py-2">
           <label className={`mb-2 block text-sm font-bold ${isLight ? 'text-gray-700' : 'text-white'}`}>{t('toolbar.canvasRatio')}</label>
-          <div className="flex gap-1 rounded-lg bg-[#12182a] p-1">
+          <div className={`flex gap-1 rounded-lg p-1 ${isLight ? 'bg-gray-100' : 'bg-[#12182a]'}`}>
             {canvasRatios.map((ratio) => (
               <button
                 key={ratio.id}
@@ -249,7 +261,7 @@ export function Toolbar({
                 className={`flex-1 px-1.5 py-1 text-[10px] font-semibold rounded-md transition-all ${
                   canvasRatio === ratio.id
                     ? 'bg-purple-600 text-white shadow-[0_8px_18px_rgba(126,34,206,0.24)]'
-                    : 'text-slate-400 hover:text-slate-200'
+                    : isLight ? 'text-gray-500 hover:text-gray-800' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 {ratio.name}
@@ -259,7 +271,107 @@ export function Toolbar({
         </div>
       </section>
 
+      {/* Watermark Section */}
+      <section className={`shrink-0 border-t px-3 py-2 ${borderClass}`}>
+        <h2 className={`mb-2 text-sm font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>{t('toolbar.watermark')}</h2>
+        <div className="space-y-2">
+          <input
+            type="text"
+            value={watermark?.text || ''}
+            onChange={(e) => onWatermarkChange({
+              text: e.target.value,
+              position: watermark?.position || 'bottom-right',
+              opacity: watermark?.opacity ?? 0.5,
+              fontSize: watermark?.fontSize ?? 14,
+            })}
+            placeholder={t('toolbar.watermark.placeholder')}
+            className={`w-full px-2 py-1.5 text-xs ${controlClass} focus:outline-none focus:border-purple-500`}
+          />
+          {watermark?.text && (
+            <>
+              <div className="grid grid-cols-5 gap-1">
+                {([
+                  { id: 'top-left', label: '↖' },
+                  { id: 'top-right', label: '↗' },
+                  { id: 'bottom-left', label: '↙' },
+                  { id: 'bottom-right', label: '↘' },
+                  { id: 'center', label: '◎' },
+                ] as const).map(({ id: pos, label }) => (
+                  <button
+                    key={pos}
+                    onClick={() => onWatermarkChange({ ...watermark, position: pos })}
+                    title={pos}
+                    aria-label={pos}
+                    className={`px-1 py-1 text-[12px] rounded-md transition-all ${
+                      watermark.position === pos
+                        ? 'bg-purple-600 text-white'
+                        : `${cardBgClass} ${textClass} hover:border-purple-400 border ${borderClass}`
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <label className={`text-[10px] font-bold ${labelClass} w-12`}>{t('toolbar.watermark.opacity')}</label>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="1"
+                  step="0.1"
+                  value={watermark.opacity}
+                  onChange={(e) => onWatermarkChange({ ...watermark, opacity: Number(e.target.value) })}
+                  className="flex-1 accent-purple-500"
+                />
+                <span className={`text-[10px] w-8 text-right ${isLight ? 'text-gray-500' : 'text-slate-400'}`}>{Math.round(watermark.opacity * 100)}%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <label className={`text-[10px] font-bold ${labelClass} w-12`}>{t('toolbar.watermark.size')}</label>
+                <input
+                  type="range"
+                  min="10"
+                  max="32"
+                  value={watermark.fontSize}
+                  onChange={(e) => onWatermarkChange({ ...watermark, fontSize: Number(e.target.value) })}
+                  className="flex-1 accent-purple-500"
+                />
+                <span className={`text-[10px] w-8 text-right ${isLight ? 'text-gray-500' : 'text-slate-400'}`}>{watermark.fontSize}px</span>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
 
+      {/* Typing Animation Section */}
+      <section className={`shrink-0 border-t px-3 py-2 ${borderClass}`}>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className={`text-sm font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>{t('typing.play')}</h2>
+          <button
+            onClick={() => onTypingAnimationChange(!typingAnimation)}
+            className={`relative w-10 h-5 rounded-full transition-colors ${
+              typingAnimation ? 'bg-purple-600' : `${cardBgClass} border ${borderClass}`
+            }`}
+          >
+            <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+              typingAnimation ? 'left-[22px]' : 'left-0.5'
+            }`} />
+          </button>
+        </div>
+        {typingAnimation && (
+          <div className="flex items-center gap-2">
+            <label className={`text-[10px] font-bold ${labelClass} w-12`}>{t('typing.speed')}</label>
+            <input
+              type="range"
+              min="10"
+              max="100"
+              value={typingSpeed}
+              onChange={(e) => onTypingSpeedChange(Number(e.target.value))}
+              className="flex-1 accent-purple-500"
+            />
+            <span className="text-[10px] text-slate-400 w-8 text-right">{typingSpeed}ms</span>
+          </div>
+        )}
+      </section>
 
       <section className={`hidden flex-wrap gap-2 border-t px-5 py-3 ${borderClass}`}>
         <button
