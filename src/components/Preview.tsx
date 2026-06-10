@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { codeToHtml } from 'shiki'
 import type { GradientBackground, WindowStyle, Watermark } from '../types'
 import { canvasRatios, codeThemes } from '../themes'
-import { useTheme } from '../contexts/ThemeContext'
 
 interface PreviewProps {
   code: string
@@ -48,8 +47,6 @@ export function Preview({
   const [html, setHtml] = useState('')
   const [displayedCode, setDisplayedCode] = useState(code)
   const typingTimerRef = useRef<number | null>(null)
-  const { theme: appTheme } = useTheme()
-  const isLight = appTheme === 'light'
   const codeThemeType = codeThemes.find(t => t.id === theme)?.type ?? 'dark'
   const isLightCode = codeThemeType === 'light'
 
